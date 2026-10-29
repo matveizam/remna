@@ -91,6 +91,12 @@
             animation: float-slow 4.5s ease-in-out infinite;
             user-select: none;
             -webkit-user-drag: none;
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .cat-tap-bounce {
+            transform: scale(1.18) rotate(-6deg) !important;
+            filter: drop-shadow(0 0 28px rgba(0, 229, 255, 0.85)) !important;
         }
 
         .title-glow {
@@ -100,6 +106,37 @@
         .footer-divider {
             height: 1px;
             background: linear-gradient(90deg, transparent 0%, #1b2a38 20%, rgba(0, 229, 255, 0.25) 50%, #1b2a38 80%, transparent 100%);
+        }
+
+        /* Easter Egg Game Styles */
+        .game-modal-backdrop {
+            background: radial-gradient(circle at 50% 20%, rgba(13, 25, 38, 0.96) 0%, rgba(7, 10, 15, 0.99) 100%);
+            backdrop-filter: blur(16px);
+        }
+
+        .game-btn {
+            cursor: pointer !important;
+            background: linear-gradient(180deg, rgba(0, 229, 255, 0.16) 0%, rgba(0, 229, 255, 0.06) 100%);
+            border: 1px solid rgba(0, 229, 255, 0.4);
+            color: #e2e8f0;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.12);
+        }
+
+        .game-btn:hover {
+            background: linear-gradient(180deg, rgba(0, 229, 255, 0.28) 0%, rgba(0, 229, 255, 0.12) 100%);
+            border-color: #00e5ff;
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .game-btn:active {
+            transform: translateY(1px);
+        }
+
+        #surfCanvas {
+            cursor: ew-resize !important;
+            touch-action: none;
         }
     </style>
 </head>
@@ -115,19 +152,25 @@
         <!-- Header with KotoNet Cat Logo & Title -->
         <header class="flex flex-col items-center text-center max-w-3xl mx-auto mb-10 lg:mb-12">
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 mb-5 select-none">
-                <img 
-                    src="https://matveizam.github.io/remna/kotonet-logo.svg" 
-                    alt="KotoNet" 
-                    class="h-16 sm:h-[72px] w-auto object-contain cat-logo"
-                    onerror="this.style.display='none'; document.getElementById('fallbackCat').classList.remove('hidden');"
-                >
-                <!-- Fallback SVG Cat if external logo is unreachable -->
-                <svg id="fallbackCat" class="hidden h-16 sm:h-[72px] w-auto text-[#00e5ff] cat-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M14 26L10 10L24 18C26.5 17.3 29.2 17 32 17C34.8 17 37.5 17.3 40 18L54 10L50 26C53.8 30.2 56 35.8 56 42C56 51.9 45.3 58 32 58C18.7 58 8 51.9 8 42C8 35.8 10.2 30.2 14 26Z" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="23" cy="36" r="3" fill="currentColor"/>
-                    <circle cx="41" cy="36" r="3" fill="currentColor"/>
-                    <path d="M28 44C29.5 45.5 34.5 45.5 36 44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                </svg>
+                <div id="catLogoTrigger" class="relative inline-flex items-center justify-center">
+                    <img 
+                        id="catLogoImg"
+                        src="https://matveizam.github.io/remna/kotonet-logo.svg" 
+                        alt="KotoNet" 
+                        crossorigin="anonymous"
+                        class="h-16 sm:h-[72px] w-auto object-contain cat-logo"
+                        onerror="this.style.display='none'; document.getElementById('fallbackCat').classList.remove('hidden');"
+                    >
+                    <!-- Fallback SVG Cat if external logo is unreachable -->
+                    <svg id="fallbackCat" class="hidden h-16 sm:h-[72px] w-auto text-[#00e5ff] cat-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M14 26L10 10L24 18C26.5 17.3 29.2 17 32 17C34.8 17 37.5 17.3 40 18L54 10L50 26C53.8 30.2 56 35.8 56 42C56 51.9 45.3 58 32 58C18.7 58 8 51.9 8 42C8 35.8 10.2 30.2 14 26Z" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="23" cy="36" r="3" fill="currentColor"/>
+                        <circle cx="41" cy="36" r="3" fill="currentColor"/>
+                        <path d="M28 44C29.5 45.5 34.5 45.5 36 44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <!-- Subtle tap counter dot indicator (only appears during secret taps) -->
+                    <span id="secretTapHint" class="pointer-events-none opacity-0 transition-opacity duration-300 absolute -top-2 -right-2 px-1.5 py-0.5 text-[11px] font-mono font-bold text-[#00e5ff] bg-[#0b0e14]/90 border border-[#00e5ff]/40 rounded-full shadow-[0_0_12px_rgba(0,229,255,0.4)]"></span>
+                </div>
 
                 <h1 class="text-3xl sm:text-4xl lg:text-[42px] font-extrabold tracking-tight text-[#00e5ff] title-glow">
                     KotoNet Help
@@ -177,7 +220,7 @@
                 </div>
 
                 <p class="text-[18px] sm:text-[19px] leading-[1.65] text-[#e2e8f0]">
-                    2. Нажмите на иконку <strong class="text-white font-bold">«Обновить»</strong><svg class="inline-block w-5 h-5 mx-1 -mt-0.5 text-[#00e5ff] select-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg> (круговые стрелки или обновление профиля), чтобы применить актуальные настройки конфигурации.
+                    2. Нажмите в приложении на иконку <strong class="text-white font-bold">«Обновить»</strong><svg class="inline-block w-5 h-5 mx-1 -mt-0.5 text-[#00e5ff] select-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg> (круговые стрелки или обновление профиля), чтобы применить актуальные настройки конфигурации.
                 </p>
             </article>
 
@@ -214,6 +257,900 @@
         </footer>
 
     </main>
+
+    <!-- ========================================== -->
+    <!-- SECRET EASTER EGG MODAL: KOTONET CYBER SURF -->
+    <!-- ========================================== -->
+    <div id="easterEggModal" class="fixed inset-0 z-50 hidden flex-col items-center justify-center p-3 sm:p-6 game-modal-backdrop select-none" role="dialog" aria-modal="true" aria-label="Игра Кибер-сёрф Котика">
+        <div class="w-full max-w-[1060px] h-[88vh] max-h-[760px] remna-panel rounded-2xl sm:rounded-3xl flex flex-col overflow-hidden relative border border-[#00e5ff]/30 shadow-[0_0_60px_rgba(0,229,255,0.15)]">
+            
+            <!-- Top HUD Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-6 sm:py-4 bg-[#0b0e14]/90 border-b border-[#1b2a38] z-20">
+                <div class="flex items-center gap-3">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#00e5ff] animate-pulse shadow-[0_0_10px_#00e5ff]"></span>
+                    <span class="font-extrabold tracking-tight text-[#00e5ff] text-base sm:text-lg">
+                        KotoNet Cyber Surf
+                    </span>
+                    <span class="hidden md:inline-block text-xs text-[#64748b] border border-[#1b2a38] rounded-md px-2 py-0.5">
+                        Секретный режим сёрфинга
+                    </span>
+                </div>
+
+                <!-- Score, Lives & Controls -->
+                <div class="flex items-center gap-3 sm:gap-5 text-sm">
+                    <div class="flex items-center gap-1.5 bg-[#111922] border border-[#1b2a38] px-3 py-1.5 rounded-xl">
+                        <span class="text-[#94a3b8] text-xs sm:text-sm">Трафик:</span>
+                        <span id="hudScore" class="font-mono font-bold text-[#00e5ff] text-sm sm:text-base">0 МБ</span>
+                    </div>
+
+                    <div class="hidden sm:flex items-center gap-1.5 bg-[#111922] border border-[#1b2a38] px-3 py-1.5 rounded-xl">
+                        <span class="text-[#94a3b8] text-xs sm:text-sm">Рекорд:</span>
+                        <span id="hudHighScore" class="font-mono font-bold text-[#fbbf24] text-sm sm:text-base">0 МБ</span>
+                    </div>
+
+                    <!-- Lives Display -->
+                    <div id="hudLives" class="flex items-center gap-1 text-[#00e5ff]" title="Жизни соединения"></div>
+
+                    <!-- Sound Toggle Button -->
+                    <button id="btnToggleSound" type="button" class="game-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                        <span id="soundIcon">🔊</span>
+                        <span id="soundLabel" class="hidden sm:inline">Звук: Вкл</span>
+                    </button>
+
+                    <!-- Close Game Button -->
+                    <button id="btnCloseGame" type="button" class="game-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-[#f87171] border-[#f87171]/40 hover:border-[#f87171]">
+                        ✕ <span class="hidden sm:inline">Закрыть</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="relative flex-1 w-full h-full bg-[#070a0f] overflow-hidden">
+                <canvas id="surfCanvas" class="w-full h-full block"></canvas>
+
+                <!-- Legend / Controls Bottom Hint -->
+                <div class="pointer-events-none absolute bottom-3 left-0 right-0 flex justify-center px-4 z-10">
+                    <div class="bg-[#0b0e14]/80 border border-[#1b2a38] backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs text-[#94a3b8] flex flex-wrap items-center justify-center gap-3">
+                        <span>🖱️ / 📱 Двигайте котика мышкой, пальцем или ⬅️ ➡️</span>
+                        <span class="text-[#00e5ff]">● Пакет: +10 МБ</span>
+                        <span class="text-[#fbbf24]">★ VLESS-ключ: +50 МБ и Турбо-щит</span>
+                        <span class="text-[#ff4d6d]">■ DPI-блок: опасность</span>
+                    </div>
+                </div>
+
+                <!-- Game Over Overlay -->
+                <div id="gameOverOverlay" class="hidden absolute inset-0 bg-[#0b0e14]/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-30">
+                    <div class="w-16 h-16 rounded-2xl bg-[#00e5ff]/10 border border-[#00e5ff]/40 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(0,229,255,0.25)]">
+                        <span class="text-3xl">🏄‍♂️</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-[#00e5ff] title-glow mb-2">
+                        Сессия сёрфинга завершена!
+                    </h2>
+                    <p class="text-[#94a3b8] text-sm sm:text-base mb-6 max-w-md">
+                        Котик отважно прорывался сквозь DPI-блокировки и собирал шифрованный трафик.
+                    </p>
+
+                    <div class="flex items-center gap-4 mb-7">
+                        <div class="bg-[#111922] border border-[#1b2a38] rounded-2xl px-5 py-3">
+                            <div class="text-xs text-[#64748b] mb-0.5">Собрано трафика</div>
+                            <div id="finalScoreText" class="text-xl sm:text-2xl font-mono font-extrabold text-[#00e5ff]">0 МБ</div>
+                        </div>
+                        <div class="bg-[#111922] border border-[#1b2a38] rounded-2xl px-5 py-3">
+                            <div class="text-xs text-[#64748b] mb-0.5">Лучший рекорд</div>
+                            <div id="finalHighScoreText" class="text-xl sm:text-2xl font-mono font-extrabold text-[#fbbf24]">0 МБ</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center gap-3">
+                        <button id="btnRestartGame" type="button" class="game-btn px-6 py-3 rounded-xl font-bold text-base text-[#00e5ff]">
+                            🔄 Играть ещё
+                        </button>
+                        <button id="btnExitToHelp" type="button" class="game-btn px-5 py-3 rounded-xl font-medium text-base text-[#94a3b8]">
+                            Вернуться к инструкции
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Easter Egg & Cyber Surf Game Script -->
+    <script>
+        (function () {
+            // --- 1. SECRET 7-TAP TRIGGER ON CAT LOGO ---
+            const catTrigger = document.getElementById('catLogoTrigger');
+            const secretTapHint = document.getElementById('secretTapHint');
+            const modal = document.getElementById('easterEggModal');
+            const catLogoImg = document.getElementById('catLogoImg');
+
+            let tapCount = 0;
+            let tapResetTimer = null;
+
+            // Preload cat SVG image for HTML5 Canvas rendering
+            const canvasCatImg = new Image();
+            canvasCatImg.crossOrigin = 'anonymous';
+            canvasCatImg.src = 'https://matveizam.github.io/remna/kotonet-logo.svg';
+
+            // Web Audio API Synthesizer for Chiptune/Synthwave Music & SFX
+            let audioCtx = null;
+            let soundEnabled = true;
+            let musicInterval = null;
+            let musicStep = 0;
+
+            function ensureAudio() {
+                if (!audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContextClass) {
+                        audioCtx = new AudioContextClass();
+                    }
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+
+            // Play subtle ascending tone when tapping the cat 1..6 times
+            function playSecretTapTone(step) {
+                if (!soundEnabled) return;
+                try {
+                    ensureAudio();
+                    if (!audioCtx) return;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const freqs = [330, 392, 440, 493.88, 587.33, 659.25, 880];
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freqs[Math.min(step - 1, freqs.length - 1)], audioCtx.currentTime);
+
+                    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.14);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } catch (e) {
+                    // Ignore audio errors if blocked
+                }
+            }
+
+            // Sound Effects inside the game
+            function playGameSfx(type) {
+                if (!soundEnabled || !audioCtx) return;
+                try {
+                    const now = audioCtx.currentTime;
+                    if (type === 'packet') {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(587.33, now); // D5
+                        osc.frequency.exponentialRampToValueAtTime(1174.66, now + 0.11); // D6
+                        gain.gain.setValueAtTime(0.11, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.14);
+                    } else if (type === 'vless') {
+                        // Golden chord arpeggio
+                        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.type = 'triangle';
+                            osc.frequency.setValueAtTime(freq, now + idx * 0.045);
+                            gain.gain.setValueAtTime(0.12, now + idx * 0.045);
+                            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.045 + 0.22);
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.start(now + idx * 0.045);
+                            osc.stop(now + idx * 0.045 + 0.24);
+                        });
+                    } else if (type === 'hit') {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(160, now);
+                        osc.frequency.linearRampToValueAtTime(55, now + 0.25);
+                        gain.gain.setValueAtTime(0.16, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.27);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.28);
+                    } else if (type === 'shatter') {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(440, now);
+                        osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+                        gain.gain.setValueAtTime(0.09, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.15);
+                    }
+                } catch (e) {}
+            }
+
+            // Procedural Synthwave / Chiptune Background Loop
+            const bassNotes = [
+                110, 110, 220, 110, 110, 110, 220, 110, // A2
+                87.31, 87.31, 174.61, 87.31, 87.31, 87.31, 174.61, 87.31, // F2
+                98.0, 98.0, 196.0, 98.0, 98.0, 98.0, 196.0, 98.0, // G2
+                82.41, 82.41, 164.81, 82.41, 98.0, 98.0, 123.47, 130.81 // E2 -> G2
+            ];
+            const leadNotes = [
+                440, 0, 523.25, 659.25, 587.33, 0, 523.25, 440,
+                349.23, 0, 440, 523.25, 659.25, 0, 523.25, 440,
+                392.0, 0, 493.88, 587.33, 659.25, 0, 587.33, 493.88,
+                329.63, 392.0, 440, 0, 523.25, 493.88, 440, 392.0
+            ];
+
+            function startMusic() {
+                stopMusic();
+                ensureAudio();
+                musicStep = 0;
+                musicInterval = setInterval(() => {
+                    if (!soundEnabled || !audioCtx || !gameActive) return;
+                    try {
+                        const now = audioCtx.currentTime;
+                        const idx = musicStep % bassNotes.length;
+
+                        // Bass synth
+                        const bassOsc = audioCtx.createOscillator();
+                        const bassGain = audioCtx.createGain();
+                        bassOsc.type = 'sawtooth';
+                        bassOsc.frequency.setValueAtTime(bassNotes[idx], now);
+                        bassGain.gain.setValueAtTime(0.045, now);
+                        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+                        bassOsc.connect(bassGain);
+                        bassGain.connect(audioCtx.destination);
+                        bassOsc.start(now);
+                        bassOsc.stop(now + 0.15);
+
+                        // Lead synth arpeggio
+                        const leadFreq = leadNotes[idx];
+                        if (leadFreq > 0) {
+                            const leadOsc = audioCtx.createOscillator();
+                            const leadGain = audioCtx.createGain();
+                            leadOsc.type = 'triangle';
+                            leadOsc.frequency.setValueAtTime(leadFreq, now);
+                            leadGain.gain.setValueAtTime(0.04, now);
+                            leadGain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+                            leadOsc.connect(leadGain);
+                            leadGain.connect(audioCtx.destination);
+                            leadOsc.start(now);
+                            leadOsc.stop(now + 0.17);
+                        }
+
+                        musicStep++;
+                    } catch (e) {}
+                }, 155);
+            }
+
+            function stopMusic() {
+                if (musicInterval) {
+                    clearInterval(musicInterval);
+                    musicInterval = null;
+                }
+            }
+
+            // Trigger logic for 7 taps on the cat logo
+            catTrigger.addEventListener('click', () => {
+                tapCount++;
+                clearTimeout(tapResetTimer);
+
+                // Visual bounce on the cat
+                const activeLogo = catLogoImg.style.display === 'none'
+                    ? document.getElementById('fallbackCat')
+                    : catLogoImg;
+                activeLogo.classList.add('cat-tap-bounce');
+                setTimeout(() => activeLogo.classList.remove('cat-tap-bounce'), 160);
+
+                playSecretTapTone(tapCount);
+
+                if (tapCount >= 2 && tapCount < 7) {
+                    secretTapHint.textContent = tapCount + '/7';
+                    secretTapHint.classList.remove('opacity-0');
+                }
+
+                if (tapCount >= 7) {
+                    tapCount = 0;
+                    secretTapHint.classList.add('opacity-0');
+                    openEasterEggGame();
+                } else {
+                    tapResetTimer = setTimeout(() => {
+                        tapCount = 0;
+                        secretTapHint.classList.add('opacity-0');
+                    }, 2200);
+                }
+            });
+
+            // --- 2. CYBER SURF GAME ENGINE ---
+            const canvas = document.getElementById('surfCanvas');
+            const ctx = canvas.getContext('2d');
+            const hudScore = document.getElementById('hudScore');
+            const hudHighScore = document.getElementById('hudHighScore');
+            const hudLives = document.getElementById('hudLives');
+            const gameOverOverlay = document.getElementById('gameOverOverlay');
+            const finalScoreText = document.getElementById('finalScoreText');
+            const finalHighScoreText = document.getElementById('finalHighScoreText');
+
+            let animFrameId = null;
+            let gameActive = false;
+            let score = 0;
+            let highScore = 0;
+            try {
+                highScore = parseInt(localStorage.getItem('kotonet_surf_highscore') || '0', 10) || 0;
+            } catch (e) {
+                highScore = 0;
+            }
+
+            let lives = 3;
+            let shieldTimer = 0; // frames of turbo shield remaining
+            let waveTime = 0;
+            let spawnTick = 0;
+
+            const player = {
+                x: 0,
+                targetX: 0,
+                y: 0,
+                width: 68,
+                height: 68,
+                tilt: 0,
+                trail: []
+            };
+
+            let items = [];
+            let particles = [];
+            let floatingTexts = [];
+            const keys = { left: false, right: false };
+
+            function resizeCanvas() {
+                if (!canvas.parentElement) return;
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = Math.max(300, rect.width);
+                canvas.height = Math.max(300, rect.height);
+                player.y = canvas.height - 108;
+                if (player.x === 0) {
+                    player.x = canvas.width / 2;
+                    player.targetX = canvas.width / 2;
+                }
+            }
+
+            window.addEventListener('resize', () => {
+                if (!modal.classList.contains('hidden')) {
+                    resizeCanvas();
+                }
+            });
+
+            function updateHUD() {
+                hudScore.textContent = score + ' МБ';
+                hudHighScore.textContent = highScore + ' МБ';
+                let livesHtml = '';
+                for (let i = 0; i < 3; i++) {
+                    const active = i < lives;
+                    livesHtml += `<span class="text-base sm:text-lg transition-transform ${active ? 'text-[#00e5ff] drop-shadow-[0_0_8px_rgba(0,229,255,0.6)] scale-100' : 'text-[#1b2a38] scale-90'}">🐾</span>`;
+                }
+                hudLives.innerHTML = livesHtml;
+            }
+
+            function resetGame() {
+                resizeCanvas();
+                score = 0;
+                lives = 3;
+                shieldTimer = 0;
+                waveTime = 0;
+                spawnTick = 0;
+                items = [];
+                particles = [];
+                floatingTexts = [];
+                player.x = canvas.width / 2;
+                player.targetX = canvas.width / 2;
+                player.trail = [];
+                gameActive = true;
+                gameOverOverlay.classList.add('hidden');
+                updateHUD();
+                startMusic();
+            }
+
+            function openEasterEggGame() {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                resetGame();
+                if (animFrameId) cancelAnimationFrame(animFrameId);
+                gameLoop();
+            }
+
+            function closeEasterEggGame() {
+                gameActive = false;
+                stopMusic();
+                if (animFrameId) {
+                    cancelAnimationFrame(animFrameId);
+                    animFrameId = null;
+                }
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            function triggerGameOver() {
+                gameActive = false;
+                stopMusic();
+                if (score > highScore) {
+                    highScore = score;
+                    try {
+                        localStorage.setItem('kotonet_surf_highscore', String(highScore));
+                    } catch (e) {}
+                }
+                updateHUD();
+                finalScoreText.textContent = score + ' МБ';
+                finalHighScoreText.textContent = highScore + ' МБ';
+                gameOverOverlay.classList.remove('hidden');
+            }
+
+            // Controls: Mouse & Touch & Keyboard
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                player.targetX = e.clientX - rect.left;
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    const rect = canvas.getBoundingClientRect();
+                    player.targetX = e.touches[0].clientX - rect.left;
+                }
+            }, { passive: true });
+
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 0) {
+                    const rect = canvas.getBoundingClientRect();
+                    player.targetX = e.touches[0].clientX - rect.left;
+                }
+            }, { passive: true });
+
+            window.addEventListener('keydown', (e) => {
+                if (modal.classList.contains('hidden')) return;
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || e.key === 'ф' || e.key === 'Ф') {
+                    keys.left = true;
+                }
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === 'в' || e.key === 'В') {
+                    keys.right = true;
+                }
+                if (e.key === 'Escape') {
+                    closeEasterEggGame();
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || e.key === 'ф' || e.key === 'Ф') {
+                    keys.left = false;
+                }
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === 'в' || e.key === 'В') {
+                    keys.right = false;
+                }
+            });
+
+            // Buttons inside modal
+            document.getElementById('btnCloseGame').addEventListener('click', closeEasterEggGame);
+            document.getElementById('btnExitToHelp').addEventListener('click', closeEasterEggGame);
+            document.getElementById('btnRestartGame').addEventListener('click', resetGame);
+
+            document.getElementById('btnToggleSound').addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                document.getElementById('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
+                document.getElementById('soundLabel').textContent = soundEnabled ? 'Звук: Вкл' : 'Звук: Выкл';
+                if (soundEnabled) {
+                    ensureAudio();
+                }
+            });
+
+            function createBurst(x, y, color, count) {
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 1.5 + Math.random() * 4.5;
+                    particles.push({
+                        x,
+                        y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        life: 1,
+                        color,
+                        size: 2 + Math.random() * 3.5
+                    });
+                }
+            }
+
+            function addFloatingText(x, y, text, color) {
+                floatingTexts.push({ x, y, text, color, life: 1 });
+            }
+
+            function spawnItem() {
+                const margin = 50;
+                const x = margin + Math.random() * Math.max(100, canvas.width - margin * 2);
+                const roll = Math.random();
+                const speedBoost = Math.min(3.5, score / 280);
+
+                if (roll < 0.58) {
+                    // Cyan VPN Data Packet
+                    items.push({
+                        type: 'packet',
+                        x,
+                        y: -30,
+                        radius: 16,
+                        vy: 3.1 + Math.random() * 1.4 + speedBoost,
+                        angle: Math.random() * Math.PI * 2
+                    });
+                } else if (roll < 0.72) {
+                    // Golden VLESS Turbo Key
+                    items.push({
+                        type: 'vless',
+                        x,
+                        y: -30,
+                        radius: 20,
+                        vy: 3.6 + Math.random() * 1.2 + speedBoost,
+                        angle: 0
+                    });
+                } else {
+                    // Red DPI / Firewall Block
+                    items.push({
+                        type: 'dpi',
+                        x,
+                        y: -35,
+                        radius: 24,
+                        vy: 3.4 + Math.random() * 1.6 + speedBoost,
+                        label: Math.random() > 0.5 ? 'DPI' : 'БЛОК'
+                    });
+                }
+            }
+
+            function drawCyberBackground() {
+                const w = canvas.width;
+                const h = canvas.height;
+
+                // Deep dark space-ocean gradient
+                const grad = ctx.createLinearGradient(0, 0, 0, h);
+                grad.addColorStop(0, '#070a0f');
+                grad.addColorStop(0.55, '#0b131e');
+                grad.addColorStop(1, '#091926');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+
+                // Perspective horizon glow
+                const horizonY = h * 0.25;
+                const sunGrad = ctx.createRadialGradient(w / 2, horizonY, 10, w / 2, horizonY, 220);
+                sunGrad.addColorStop(0, 'rgba(0, 229, 255, 0.22)');
+                sunGrad.addColorStop(0.5, 'rgba(0, 229, 255, 0.05)');
+                sunGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = sunGrad;
+                ctx.fillRect(0, 0, w, h);
+
+                // Moving horizontal cyber-wave lines
+                ctx.save();
+                ctx.strokeStyle = 'rgba(0, 229, 255, 0.13)';
+                ctx.lineWidth = 1;
+
+                // Perspective vertical grid lines
+                const numCols = 12;
+                for (let i = -numCols; i <= numCols; i++) {
+                    const topX = w / 2 + i * (w / 18);
+                    const botX = w / 2 + i * (w / 4);
+                    ctx.beginPath();
+                    ctx.moveTo(topX, horizonY);
+                    ctx.lineTo(botX, h);
+                    ctx.stroke();
+                }
+
+                // Flowing wave ribbons across the ocean floor
+                for (let row = 0; row < 8; row++) {
+                    const progress = ((row / 8) + (waveTime * 0.012)) % 1;
+                    const yBase = horizonY + Math.pow(progress, 1.7) * (h - horizonY);
+                    ctx.strokeStyle = `rgba(0, 229, 255, ${0.06 + progress * 0.18})`;
+                    ctx.lineWidth = 1 + progress * 1.2;
+                    ctx.beginPath();
+                    for (let x = 0; x <= w; x += 28) {
+                        const waveY = yBase + Math.sin(x * 0.018 + waveTime * 0.08 + row) * (6 * progress);
+                        if (x === 0) ctx.moveTo(x, waveY);
+                        else ctx.lineTo(x, waveY);
+                    }
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            function drawSurferCat() {
+                const x = player.x;
+                const y = player.y + Math.sin(waveTime * 0.14) * 4;
+
+                // Neon wake trail behind the surfboard
+                player.trail.unshift({ x, y: y + 26 });
+                if (player.trail.length > 18) player.trail.pop();
+
+                ctx.save();
+                for (let i = 0; i < player.trail.length - 1; i++) {
+                    const p1 = player.trail[i];
+                    const p2 = player.trail[i + 1];
+                    const alpha = (1 - i / player.trail.length) * 0.55;
+                    ctx.strokeStyle = shieldTimer > 0
+                        ? `rgba(251, 191, 36, ${alpha})`
+                        : `rgba(0, 229, 255, ${alpha})`;
+                    ctx.lineWidth = (1 - i / player.trail.length) * 14;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y + i * 2.2);
+                    ctx.lineTo(p2.x, p2.y + (i + 1) * 2.2);
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(player.tilt);
+
+                // Turbo shield bubble if active
+                if (shieldTimer > 0) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(0, -2, 46, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 2.5;
+                    ctx.shadowColor = '#fbbf24';
+                    ctx.shadowBlur = 20;
+                    ctx.stroke();
+                    ctx.fillStyle = 'rgba(251, 191, 36, 0.09)';
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Glowing Cyan Cyber Surfboard
+                ctx.save();
+                ctx.shadowColor = shieldTimer > 0 ? '#fbbf24' : '#00e5ff';
+                ctx.shadowBlur = 18;
+                ctx.fillStyle = '#0d1824';
+                ctx.strokeStyle = shieldTimer > 0 ? '#fbbf24' : '#00e5ff';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.ellipse(0, 24, 38, 9, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Center stripe on surfboard
+                ctx.beginPath();
+                ctx.moveTo(-24, 24);
+                ctx.lineTo(24, 24);
+                ctx.strokeStyle = 'rgba(0, 229, 255, 0.55)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.restore();
+
+                // Draw KotoNet Cat Logo on top of surfboard
+                if (canvasCatImg.complete && canvasCatImg.naturalWidth > 0) {
+                    ctx.save();
+                    ctx.shadowColor = '#00e5ff';
+                    ctx.shadowBlur = 16;
+                    ctx.drawImage(canvasCatImg, -30, -34, 60, 60);
+                    ctx.restore();
+                } else {
+                    // Crisp vector fallback cat if external SVG is still loading
+                    ctx.save();
+                    ctx.strokeStyle = '#00e5ff';
+                    ctx.fillStyle = '#0b131e';
+                    ctx.lineWidth = 2.5;
+                    ctx.shadowColor = '#00e5ff';
+                    ctx.shadowBlur = 14;
+                    ctx.beginPath();
+                    ctx.arc(0, -2, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    // Cat ears
+                    ctx.beginPath();
+                    ctx.moveTo(-15, -14);
+                    ctx.lineTo(-20, -28);
+                    ctx.lineTo(-5, -20);
+                    ctx.moveTo(15, -14);
+                    ctx.lineTo(20, -28);
+                    ctx.lineTo(5, -20);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                ctx.restore();
+            }
+
+            function drawItems() {
+                for (let i = 0; i < items.length; i++) {
+                    const it = items[i];
+                    ctx.save();
+                    ctx.translate(it.x, it.y);
+
+                    if (it.type === 'packet') {
+                        // Glowing cyan data cube/orb
+                        ctx.rotate(waveTime * 0.05 + it.angle);
+                        ctx.shadowColor = '#00e5ff';
+                        ctx.shadowBlur = 14;
+                        ctx.fillStyle = 'rgba(0, 229, 255, 0.2)';
+                        ctx.strokeStyle = '#00e5ff';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.roundRect(-13, -13, 26, 26, 6);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#ffffff';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else if (it.type === 'vless') {
+                        // Golden VLESS star/crystal
+                        ctx.rotate(waveTime * 0.06);
+                        ctx.shadowColor = '#fbbf24';
+                        ctx.shadowBlur = 18;
+                        ctx.fillStyle = 'rgba(251, 191, 36, 0.22)';
+                        ctx.strokeStyle = '#fbbf24';
+                        ctx.lineWidth = 2.2;
+                        ctx.beginPath();
+                        for (let s = 0; s < 8; s++) {
+                            const r = s % 2 === 0 ? 18 : 8;
+                            const a = (s * Math.PI) / 4;
+                            if (s === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+                            else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+                    } else if (it.type === 'dpi') {
+                        // Red DPI / Firewall Hazard Block
+                        ctx.shadowColor = '#ff4d6d';
+                        ctx.shadowBlur = 16;
+                        ctx.fillStyle = 'rgba(255, 77, 109, 0.18)';
+                        ctx.strokeStyle = '#ff4d6d';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.roundRect(-26, -15, 52, 30, 6);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#ffccd5';
+                        ctx.font = 'bold 11px Inter, monospace';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(it.label, 0, 0);
+                    }
+
+                    ctx.restore();
+                }
+            }
+
+            function drawEffects() {
+                // Particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life -= 0.03;
+                    if (p.life <= 0) {
+                        particles.splice(i, 1);
+                        continue;
+                    }
+                    ctx.save();
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Floating score texts
+                for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                    const ft = floatingTexts[i];
+                    ft.y -= 1.2;
+                    ft.life -= 0.025;
+                    if (ft.life <= 0) {
+                        floatingTexts.splice(i, 1);
+                        continue;
+                    }
+                    ctx.save();
+                    ctx.globalAlpha = ft.life;
+                    ctx.font = 'bold 14px Inter, sans-serif';
+                    ctx.fillStyle = ft.color;
+                    ctx.textAlign = 'center';
+                    ctx.shadowColor = '#000';
+                    ctx.shadowBlur = 4;
+                    ctx.fillText(ft.text, ft.x, ft.y);
+                    ctx.restore();
+                }
+            }
+
+            function gameLoop() {
+                if (!modal.classList.contains('hidden')) {
+                    animFrameId = requestAnimationFrame(gameLoop);
+                }
+                if (!gameActive) return;
+
+                waveTime++;
+                if (shieldTimer > 0) shieldTimer--;
+
+                // Keyboard movement updates targetX
+                if (keys.left) player.targetX -= 8.5;
+                if (keys.right) player.targetX += 8.5;
+
+                // Clamp within canvas bounds
+                const margin = 42;
+                player.targetX = Math.max(margin, Math.min(canvas.width - margin, player.targetX));
+
+                // Smooth horizontal interpolation + surfboard bank angle
+                const dx = player.targetX - player.x;
+                player.x += dx * 0.18;
+                player.tilt = Math.max(-0.32, Math.min(0.32, dx * 0.008));
+
+                // Spawn new items periodically
+                spawnTick++;
+                const spawnRate = Math.max(22, 44 - Math.floor(score / 150));
+                if (spawnTick >= spawnRate) {
+                    spawnTick = 0;
+                    spawnItem();
+                }
+
+                // Update & check collisions
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const it = items[i];
+                    it.y += it.vy;
+
+                    const dist = Math.hypot(it.x - player.x, it.y - player.y);
+                    if (dist < it.radius + 28) {
+                        if (it.type === 'packet') {
+                            score += 10;
+                            playGameSfx('packet');
+                            createBurst(it.x, it.y, '#00e5ff', 10);
+                            addFloatingText(it.x, it.y, '+10 МБ', '#00e5ff');
+                            updateHUD();
+                        } else if (it.type === 'vless') {
+                            score += 50;
+                            shieldTimer = 300; // ~5 seconds of Turbo Shield
+                            playGameSfx('vless');
+                            createBurst(it.x, it.y, '#fbbf24', 18);
+                            addFloatingText(it.x, it.y, '+50 МБ • ТУРБО-ЩИТ!', '#fbbf24');
+                            updateHUD();
+                        } else if (it.type === 'dpi') {
+                            if (shieldTimer > 0) {
+                                // Destroy DPI block with Turbo Shield!
+                                score += 25;
+                                playGameSfx('shatter');
+                                createBurst(it.x, it.y, '#fbbf24', 14);
+                                addFloatingText(it.x, it.y, 'ОБХОД DPI +25 МБ', '#fbbf24');
+                                updateHUD();
+                            } else {
+                                lives--;
+                                playGameSfx('hit');
+                                createBurst(it.x, it.y, '#ff4d6d', 16);
+                                addFloatingText(it.x, it.y, 'СБОЙ ПАКЕТА!', '#ff4d6d');
+                                updateHUD();
+                                if (lives <= 0) {
+                                    items.splice(i, 1);
+                                    triggerGameOver();
+                                    return;
+                                }
+                            }
+                        }
+                        items.splice(i, 1);
+                        continue;
+                    }
+
+                    if (it.y > canvas.height + 50) {
+                        items.splice(i, 1);
+                    }
+                }
+
+                // Render Frame
+                drawCyberBackground();
+                drawItems();
+                drawSurferCat();
+                drawEffects();
+            }
+        })();
+    </script>
 
 </body>
 </html>
