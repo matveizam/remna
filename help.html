@@ -3,455 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KotoNet — Помощь</title>
+    <title>KotoNet Help</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-                    },
-                    colors: {
-                        remna: {
-                            bg: '#0b0e14',
-                            card: '#111722',
-                            step: '#151e2c',
-                            border: '#1c2b36',
-                            cyan: '#00e5ff',
-                            cyanSoft: '#22d3ee',
-                            textMain: '#f1f5f9',
-                            textMuted: '#94a3b8'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
 
     <style>
+        * {
+            cursor: default;
+            box-sizing: border-box;
+        }
+
         body {
             background-color: #0b0e14;
-            color: #f1f5f9;
-            font-family: 'Inter', sans-serif;
+            color: #e2e8f0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Ambient background glow matching Remnawave aesthetic */
-        .ambient-bg {
+        /* Subtle architectural dot-grid background with radial fade */
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(0, 229, 255, 0.14) 1px, transparent 1px);
+            background-size: 28px 28px;
+            -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 35%, #000 20%, transparent 80%);
+            mask-image: radial-gradient(ellipse 80% 70% at 50% 35%, #000 20%, transparent 80%);
+        }
+
+        /* Ambient cyan spotlight behind the header */
+        .ambient-glow {
             background: 
-                radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.09) 0%, rgba(17, 23, 34, 0) 60%),
-                radial-gradient(circle at 50% 100%, rgba(34, 211, 238, 0.05) 0%, rgba(11, 14, 20, 0) 50%);
+                radial-gradient(650px circle at 50% 10%, rgba(0, 229, 255, 0.11), transparent 70%),
+                radial-gradient(900px circle at 50% 90%, rgba(0, 229, 255, 0.04), transparent 70%);
         }
 
-        /* Main container card with subtle cyan border glow */
-        .remna-card {
-            background-color: #111722;
-            border: 1px solid #1c2b36;
+        /* Main Remnawave outer surface */
+        .remna-panel {
+            background: linear-gradient(180deg, rgba(17, 25, 34, 0.92) 0%, rgba(13, 19, 27, 0.96) 100%);
+            border: 1px solid #1b2a38;
             box-shadow: 
-                0 20px 50px rgba(0, 0, 0, 0.65),
-                0 0 35px rgba(0, 229, 255, 0.04),
-                inset 0 1px 0 rgba(0, 229, 255, 0.14);
+                0 25px 70px rgba(0, 0, 0, 0.65),
+                0 0 40px rgba(0, 229, 255, 0.04),
+                inset 0 1px 0 rgba(0, 229, 255, 0.15);
         }
 
-        /* Step block styling with glowing left cyan accent bar */
+        /* Individual Step Card in dark glass style */
         .step-card {
-            background-color: #151e2b;
-            border: 1px solid #1e3140;
+            background: linear-gradient(180deg, rgba(20, 30, 42, 0.85) 0%, rgba(14, 21, 30, 0.95) 100%);
+            border: 1px solid #1b2a38;
             border-left: 4px solid #00e5ff;
-            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 
+                0 12px 32px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            position: relative;
+            overflow: hidden;
         }
 
-        .step-card:hover {
-            border-color: #26455a;
-            border-left-color: #00e5ff;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35), 0 0 18px rgba(0, 229, 255, 0.06);
+        /* Subtle top-left cyan inner illumination on each step card */
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle at top left, rgba(0, 229, 255, 0.09), transparent 70%);
+            pointer-events: none;
         }
 
-        /* Soft cyan glow for logo and key elements */
-        .logo-glow {
-            filter: drop-shadow(0 0 16px rgba(0, 229, 255, 0.35));
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+        /* Gentle breathing/floating animation for the cat logo */
+        @keyframes float-slow {
+            0%, 100% {
+                transform: translateY(0px);
+                filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.35));
+            }
+            50% {
+                transform: translateY(-4px);
+                filter: drop-shadow(0 0 24px rgba(0, 229, 255, 0.52));
+            }
         }
 
-        .logo-glow:hover {
-            transform: scale(1.05) rotate(-2deg);
-            filter: drop-shadow(0 0 24px rgba(0, 229, 255, 0.55));
+        .cat-logo {
+            animation: float-slow 4.5s ease-in-out infinite;
+            user-select: none;
+            -webkit-user-drag: none;
         }
 
         .title-glow {
-            text-shadow: 0 0 22px rgba(0, 229, 255, 0.35);
+            text-shadow: 0 0 24px rgba(0, 229, 255, 0.32);
         }
 
-        /* Attention pulse ring for the Refresh icon */
-        @keyframes pulse-ring {
-            0% {
-                box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.45);
-            }
-            70% {
-                box-shadow: 0 0 0 12px rgba(0, 229, 255, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(0, 229, 255, 0);
-            }
-        }
-
-        .refresh-badge-pulse {
-            animation: pulse-ring 2.4s infinite;
-        }
-
-        /* Smooth 360 rotation when clicked */
-        @keyframes spin-once {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .spin-active {
-            animation: spin-once 0.65s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Large font mode for grandmother accessibility */
-        body.large-text-mode .readable-title {
-            font-size: 1.45rem !important;
-            line-height: 1.95rem !important;
-        }
-        body.large-text-mode .readable-body {
-            font-size: 1.25rem !important;
-            line-height: 1.85rem !important;
-        }
-        body.large-text-mode .readable-banner {
-            font-size: 1.3rem !important;
-            line-height: 1.9rem !important;
+        .footer-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #1b2a38 20%, rgba(0, 229, 255, 0.25) 50%, #1b2a38 80%, transparent 100%);
         }
     </style>
 </head>
-<body class="ambient-bg min-h-screen flex flex-col justify-center items-center py-6 px-4 sm:px-6 lg:px-8 selection:bg-cyan-400 selection:text-slate-950">
+<body class="min-h-screen flex flex-col justify-center items-center px-4 py-8 sm:px-8 md:px-12 lg:py-12 relative">
 
-    <!-- Main Support Card -->
-    <main class="w-full max-w-2xl remna-card rounded-2xl sm:rounded-3xl p-5 sm:p-9 relative overflow-hidden">
-        
-        <!-- Top Accessibility Bar: Comfort Font Size Toggle -->
-        <div class="flex justify-end mb-2">
-            <button 
-                id="fontToggleBtn"
-                onclick="toggleLargeFont()"
-                type="button"
-                aria-label="Увеличить размер текста"
-                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-medium bg-[#162231] hover:bg-[#1d2e42] text-slate-300 hover:text-[#00e5ff] border border-[#233849] transition-all cursor-pointer active:scale-95"
-            >
-                <svg class="w-4 h-4 text-[#00e5ff]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+    <!-- Background Decorative Layers -->
+    <div class="fixed inset-0 bg-grid-pattern pointer-events-none" aria-hidden="true"></div>
+    <div class="fixed inset-0 ambient-glow pointer-events-none" aria-hidden="true"></div>
+
+    <!-- Full-Width Centered Container (max-width: 1360px) -->
+    <main class="w-full max-w-[1360px] remna-panel rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-14 relative z-10">
+
+        <!-- Header with KotoNet Cat Logo & Title -->
+        <header class="flex flex-col items-center text-center max-w-3xl mx-auto mb-10 lg:mb-12">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 mb-5 select-none">
+                <img 
+                    src="https://matveizam.github.io/remna/kotonet-logo.svg" 
+                    alt="KotoNet" 
+                    class="h-16 sm:h-[72px] w-auto object-contain cat-logo"
+                    onerror="this.style.display='none'; document.getElementById('fallbackCat').classList.remove('hidden');"
+                >
+                <!-- Fallback SVG Cat if external logo is unreachable -->
+                <svg id="fallbackCat" class="hidden h-16 sm:h-[72px] w-auto text-[#00e5ff] cat-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M14 26L10 10L24 18C26.5 17.3 29.2 17 32 17C34.8 17 37.5 17.3 40 18L54 10L50 26C53.8 30.2 56 35.8 56 42C56 51.9 45.3 58 32 58C18.7 58 8 51.9 8 42C8 35.8 10.2 30.2 14 26Z" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="23" cy="36" r="3" fill="currentColor"/>
+                    <circle cx="41" cy="36" r="3" fill="currentColor"/>
+                    <path d="M28 44C29.5 45.5 34.5 45.5 36 44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
                 </svg>
-                <span id="fontToggleText">Крупный шрифт</span>
-            </button>
-        </div>
 
-        <!-- 1. HEADER WITH KOTONET CAT LOGO -->
-        <header class="text-center flex flex-col items-center mb-7">
-            <!-- Cat Logo Wrapper -->
-            <div class="relative mb-4 flex items-center justify-center">
-                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#15202e]/90 border border-[#22394a] flex items-center justify-center p-3.5 shadow-inner">
-                    <img 
-                        src="https://matveizam.github.io/remna/kotonet-logo.svg" 
-                        alt="Логотип KotoNet" 
-                        class="w-full h-full object-contain logo-glow"
-                        onerror="this.style.display='none'; document.getElementById('fallbackCatLogo').classList.remove('hidden');"
-                    >
-                    <!-- Fallback SVG Cat in case image fails to load -->
-                    <svg id="fallbackCatLogo" class="hidden w-16 h-16 text-[#00e5ff] logo-glow" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 26L10 10L24 18C26.5 17.3 29.2 17 32 17C34.8 17 37.5 17.3 40 18L54 10L50 26C53.8 30.2 56 35.8 56 42C56 51.9 45.3 58 32 58C18.7 58 8 51.9 8 42C8 35.8 10.2 30.2 14 26Z" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="23" cy="36" r="3" fill="currentColor"/>
-                        <circle cx="41" cy="36" r="3" fill="currentColor"/>
-                        <path d="M28 44C29.5 45.5 34.5 45.5 36 44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                    </svg>
-                </div>
+                <h1 class="text-3xl sm:text-4xl lg:text-[42px] font-extrabold tracking-tight text-[#00e5ff] title-glow">
+                    KotoNet Help
+                </h1>
             </div>
 
-            <!-- Main Heading -->
-            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#00e5ff] title-glow mb-4">
-                KotoNet — Помощь
-            </h1>
-
-            <!-- Calm, Reassuring Status Banner -->
-            <div class="w-full bg-[#14222e]/90 border border-[#1f3b4d] rounded-2xl p-4 sm:p-5 text-left flex items-start sm:items-center gap-3.5 shadow-sm">
-                <div class="flex-shrink-0 mt-1 sm:mt-0">
-                    <span class="relative flex h-4 w-4">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00e5ff] opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-4 w-4 bg-[#00e5ff]"></span>
-                    </span>
-                </div>
-                <p class="readable-banner text-[17px] sm:text-[18.5px] leading-relaxed text-[#f1f5f9] font-medium">
-                    Не работает VPN? <span class="text-[#22d3ee] font-semibold">Не переживайте, вы ничего не сломали.</span> Скорее всего, мы уже чиним связь. Попробуйте сделать 3 простых шага:
-                </p>
-            </div>
+            <p class="text-[19px] sm:text-[21px] lg:text-[22px] leading-relaxed text-[#e2e8f0] font-normal">
+                Если вы столкнулись со сбоем в работе VPN, скорее всего, вопрос уже решается.
+            </p>
         </header>
 
-        <!-- 2. STEP-BY-STEP VISUAL GUIDE -->
-        <section class="space-y-4 sm:space-y-5" aria-label="Пошаговая инструкция">
+        <!-- 3-Column Full-Width Steps Grid -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
 
-            <!-- STEP 1 -->
-            <article class="step-card rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div class="flex-1">
-                    <div class="inline-flex items-center gap-2 mb-1.5">
-                        <span class="px-2.5 py-0.5 rounded-md bg-[#00e5ff]/15 text-[#00e5ff] font-bold text-sm tracking-wide uppercase">
-                            Шаг 1
-                        </span>
-                    </div>
-                    <h2 class="readable-title text-lg sm:text-xl font-bold text-white mb-1.5">
-                        Откройте приложение VPN
-                    </h2>
-                    <p class="readable-body text-base sm:text-[17.5px] leading-relaxed text-slate-300">
-                        Зайдите в программу на телефоне или компьютере, через которую вы обычно включаете интернет <span class="text-slate-400">(там, где большая кнопка включения)</span>.
-                    </p>
-                </div>
-
-                <!-- Visual Icon Badge: App Power Button -->
-                <div class="flex-shrink-0 self-center sm:self-auto">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#101823] border border-[#223849] flex flex-col items-center justify-center text-[#22d3ee] shadow-inner">
-                        <svg class="w-9 h-9 sm:w-10 sm:h-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />
+            <!-- Step 1 -->
+            <article class="step-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between h-full">
+                <div class="flex items-center justify-between mb-6 select-none" aria-hidden="true">
+                    <!-- Decorative Icon Container (Non-button appearance) -->
+                    <div class="w-12 h-12 rounded-xl bg-[#00e5ff]/[0.07] border border-[#00e5ff]/20 flex items-center justify-center text-[#00e5ff]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <rect x="6" y="3" width="12" height="18" rx="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 17.5h4" />
                         </svg>
-                        <span class="text-[11px] text-slate-400 mt-1 font-medium">Программа</span>
                     </div>
-                </div>
-            </article>
-
-            <!-- STEP 2 (CRITICAL: REFRESH BUTTON) -->
-            <article class="step-card rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#162231]/90 border-[#254458]">
-                <div class="flex-1">
-                    <div class="inline-flex items-center gap-2 mb-1.5">
-                        <span class="px-2.5 py-0.5 rounded-md bg-[#00e5ff]/20 text-[#00e5ff] font-bold text-sm tracking-wide uppercase">
-                            Шаг 2 — Самый важный
-                        </span>
-                    </div>
-                    <h2 class="readable-title text-lg sm:text-xl font-bold text-white mb-1.5">
-                        Нажмите кнопку «Обновить»
-                    </h2>
-                    <p class="readable-body text-base sm:text-[17.5px] leading-relaxed text-slate-200">
-                        Найдите значок с <strong class="text-[#00e5ff] font-semibold">круговыми стрелками</strong> (как на картинке справа) и нажмите на него один раз. Так программа сама загрузит свежие настройки.
-                    </p>
-                </div>
-
-                <!-- Interactive Highlighted Refresh Icon Badge -->
-                <div class="flex-shrink-0 self-center sm:self-auto flex flex-col items-center">
-                    <button 
-                        type="button"
-                        onclick="triggerDemoRefresh()"
-                        title="Нажмите, чтобы посмотреть, как вращаются стрелочки"
-                        class="group relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#0d1520] border-2 border-[#00e5ff] refresh-badge-pulse flex flex-col items-center justify-center text-[#00e5ff] hover:bg-[#132233] active:scale-95 transition-all cursor-pointer"
-                    >
-                        <!-- Circular Arrows Icon (Standard Refresh Symbol across VPN clients) -->
-                        <svg id="mainRefreshIcon" class="w-10 h-10 sm:w-12 sm:h-12 transition-transform" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                        <span class="text-[11px] sm:text-xs font-bold text-[#f1f5f9] mt-1 tracking-tight">
-                            Обновить
-                        </span>
-                    </button>
-                    <span id="demoRefreshFeedback" class="text-xs text-[#22d3ee] mt-2 text-center font-medium">
-                        👆 Вот такой значок
+                    <span class="text-4xl font-extrabold tracking-tighter text-[#00e5ff]/15 font-mono">
+                        01
                     </span>
                 </div>
+
+                <p class="text-[18px] sm:text-[19px] leading-[1.65] text-[#e2e8f0]">
+                    1. Откройте приложение, в котором вы включаете VPN (<span class="text-[#00e5ff] font-semibold">INCY</span>, <span class="text-[#00e5ff] font-semibold">Happ</span> или <span class="text-[#00e5ff] font-semibold">V2Ray</span>).
+                </p>
             </article>
 
-            <!-- STEP 3 -->
-            <article class="step-card rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div class="flex-1">
-                    <div class="inline-flex items-center gap-2 mb-1.5">
-                        <span class="px-2.5 py-0.5 rounded-md bg-[#00e5ff]/15 text-[#00e5ff] font-bold text-sm tracking-wide uppercase">
-                            Шаг 3
-                        </span>
+            <!-- Step 2 -->
+            <article class="step-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between h-full">
+                <div class="flex items-center justify-between mb-6 select-none" aria-hidden="true">
+                    <!-- Decorative Circular Arrows Icon -->
+                    <div class="w-12 h-12 rounded-xl bg-[#00e5ff]/[0.07] border border-[#00e5ff]/20 flex items-center justify-center text-[#00e5ff]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
                     </div>
-                    <h2 class="readable-title text-lg sm:text-xl font-bold text-white mb-1.5">
-                        Попробуйте включить снова
-                    </h2>
-                    <p class="readable-body text-base sm:text-[17.5px] leading-relaxed text-slate-300">
-                        Подождите 5 секунд и нажмите кнопку включения. Если интернет так и не появился — <strong class="text-white font-semibold">напишите человеку, который настроил вам KotoNet</strong>.
-                    </p>
+                    <span class="text-4xl font-extrabold tracking-tighter text-[#00e5ff]/15 font-mono">
+                        02
+                    </span>
                 </div>
 
-                <!-- Visual Icon Badge: Chat / Support Person -->
-                <div class="flex-shrink-0 self-center sm:self-auto">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#101823] border border-[#223849] flex flex-col items-center justify-center text-[#22d3ee] shadow-inner">
-                        <svg class="w-9 h-9 sm:w-10 sm:h-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <p class="text-[18px] sm:text-[19px] leading-[1.65] text-[#e2e8f0]">
+                    2. Нажмите на иконку <strong class="text-white font-bold">«Обновить»</strong><svg class="inline-block w-5 h-5 mx-1 -mt-0.5 text-[#00e5ff] select-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg> (круговые стрелки или обновление профиля), чтобы применить актуальные настройки конфигурации.
+                </p>
+            </article>
+
+            <!-- Step 3 -->
+            <article class="step-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between h-full">
+                <div class="flex items-center justify-between mb-6 select-none" aria-hidden="true">
+                    <!-- Decorative Direct Contact Icon -->
+                    <div class="w-12 h-12 rounded-xl bg-[#00e5ff]/[0.07] border border-[#00e5ff]/20 flex items-center justify-center text-[#00e5ff]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                         </svg>
-                        <span class="text-[11px] text-slate-400 mt-1 font-medium">Написать</span>
                     </div>
+                    <span class="text-4xl font-extrabold tracking-tighter text-[#00e5ff]/15 font-mono">
+                        03
+                    </span>
                 </div>
+
+                <p class="text-[18px] sm:text-[19px] leading-[1.65] text-[#e2e8f0]">
+                    3. Если соединение не восстановилось, свяжитесь напрямую с человеком, выдавшим вам доступ к подписке.
+                </p>
             </article>
 
         </section>
 
-        <!-- 3. INTERACTIVE HELPER FOR NON-TECH-SAVVY USERS -->
-        <section class="mt-6">
-            <button 
-                type="button"
-                onclick="toggleVisualHelper()"
-                aria-expanded="false"
-                id="helperToggleBtn"
-                class="w-full py-3.5 px-5 rounded-2xl bg-[#15202e] hover:bg-[#1a2839] border border-[#22394a] text-[#22d3ee] font-semibold text-base sm:text-lg flex items-center justify-between gap-3 transition-all cursor-pointer active:scale-[0.99]"
-            >
-                <span class="flex items-center gap-2.5 text-left">
-                    <svg class="w-6 h-6 flex-shrink-0 text-[#00e5ff]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-                    </svg>
-                    <span>Где именно искать кнопку «Обновить» в программе?</span>
-                </span>
-                <svg id="helperChevron" class="w-5 h-5 flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
-            </button>
-
-            <!-- Collapsible Visual Mockup Content -->
-            <div id="visualHelperBox" class="hidden mt-3 rounded-2xl bg-[#0d131c] border border-[#1f3444] p-4 sm:p-6 transition-all">
-                <p class="readable-body text-slate-300 text-base sm:text-[17px] mb-4 leading-relaxed">
-                    В любой программе (например, <strong class="text-white">Happ</strong>, <strong class="text-white">v2rayTun</strong>, <strong class="text-white">Hiddify</strong> или <strong class="text-white">Streisand</strong>) рядом с надписью <strong class="text-[#00e5ff]">KotoNet</strong> есть круглая стрелочка:
-                </p>
-
-                <!-- Simulated Phone App Card Showing Exact Placement -->
-                <div class="max-w-md mx-auto rounded-2xl bg-[#151f2e] border border-[#284155] p-4 shadow-lg">
-                    <div class="text-xs text-slate-400 uppercase tracking-wider mb-2 font-semibold">
-                        Пример экрана вашей программы:
-                    </div>
-
-                    <!-- Fake Subscription Row inside VPN App -->
-                    <div class="rounded-xl bg-[#0e1520] border border-[#223647] p-3.5 flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-[#162536] border border-[#264258] flex items-center justify-center text-[#00e5ff] font-bold">
-                                🐱
-                            </div>
-                            <div>
-                                <div class="font-bold text-white text-base">KotoNet VPN</div>
-                                <div id="mockSubStatus" class="text-xs text-slate-400">Подписка активна</div>
-                            </div>
-                        </div>
-
-                        <!-- Highlighted Target Button -->
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-[#00e5ff] hidden sm:inline animate-pulse">
-                                Нажать сюда ➔
-                            </span>
-                            <button 
-                                type="button"
-                                onclick="triggerMockAppUpdate()"
-                                class="w-11 h-11 rounded-xl bg-[#00e5ff]/15 hover:bg-[#00e5ff]/25 border-2 border-[#00e5ff] flex items-center justify-center text-[#00e5ff] cursor-pointer active:scale-90 transition-all"
-                                title="Попробуйте нажать"
-                            >
-                                <svg id="mockAppRefreshIcon" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Feedback message inside simulator -->
-                    <p id="mockHelperHint" class="text-center text-sm text-[#22d3ee] mt-3 font-medium">
-                        👆 Нажмите на голубую кнопку со стрелочками выше, чтобы потренироваться!
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 4. MINIMALIST FOOTER -->
-        <footer class="mt-8 pt-5 border-t border-[#1c2b36] text-center flex flex-col items-center justify-center gap-1">
-            <span class="text-sm font-semibold tracking-wide text-slate-400">
+        <!-- Minimalist Footer -->
+        <footer class="mt-10 lg:mt-12 pt-6 text-center select-none">
+            <div class="footer-divider mb-6"></div>
+            <div class="text-[15px] font-medium text-[#94a3b8]">
                 KotoNet
-            </span>
-            <span class="text-xs text-slate-500">
-                Заботливый и быстрый интернет
-            </span>
+            </div>
+            <div class="text-[13px] text-[#64748b] tracking-[0.03em] mt-1">
+                с заботой о вашем интернете
+            </div>
         </footer>
 
     </main>
 
-    <!-- Interactive Scripts -->
-    <script>
-        // 1. Toggle Large Font Mode for older users / grandmothers
-        let isLargeFont = false;
-        function toggleLargeFont() {
-            isLargeFont = !isLargeFont;
-            const body = document.body;
-            const btnText = document.getElementById('fontToggleText');
-            const btn = document.getElementById('fontToggleBtn');
-
-            if (isLargeFont) {
-                body.classList.add('large-text-mode');
-                btnText.textContent = 'Обычный шрифт';
-                btn.classList.add('border-[#00e5ff]', 'text-[#00e5ff]');
-            } else {
-                body.classList.remove('large-text-mode');
-                btnText.textContent = 'Крупный шрифт';
-                btn.classList.remove('border-[#00e5ff]', 'text-[#00e5ff]');
-            }
-        }
-
-        // 2. Spin the Step 2 Refresh icon when tapped
-        function triggerDemoRefresh() {
-            const icon = document.getElementById('mainRefreshIcon');
-            const feedback = document.getElementById('demoRefreshFeedback');
-
-            icon.classList.remove('spin-active');
-            void icon.offsetWidth; // trigger reflow
-            icon.classList.add('spin-active');
-
-            feedback.textContent = '✓ Именно такой значок!';
-            feedback.classList.add('text-emerald-400');
-            feedback.classList.remove('text-[#22d3ee]');
-
-            setTimeout(() => {
-                feedback.textContent = '👆 Вот такой значок';
-                feedback.classList.remove('text-emerald-400');
-                feedback.classList.add('text-[#22d3ee]');
-            }, 3000);
-        }
-
-        // 3. Toggle Collapsible Visual Helper
-        function toggleVisualHelper() {
-            const box = document.getElementById('visualHelperBox');
-            const chevron = document.getElementById('helperChevron');
-            const btn = document.getElementById('helperToggleBtn');
-
-            const isHidden = box.classList.contains('hidden');
-            if (isHidden) {
-                box.classList.remove('hidden');
-                chevron.classList.add('rotate-180');
-                btn.setAttribute('aria-expanded', 'true');
-            } else {
-                box.classList.add('hidden');
-                chevron.classList.remove('rotate-180');
-                btn.setAttribute('aria-expanded', 'false');
-            }
-        }
-
-        // 4. Interactive Practice inside the Mock VPN App
-        function triggerMockAppUpdate() {
-            const icon = document.getElementById('mockAppRefreshIcon');
-            const status = document.getElementById('mockSubStatus');
-            const hint = document.getElementById('mockHelperHint');
-
-            icon.classList.remove('spin-active');
-            void icon.offsetWidth;
-            icon.classList.add('spin-active');
-
-            status.textContent = 'Обновляем настройки...';
-            status.className = 'text-xs text-[#00e5ff] font-medium';
-
-            setTimeout(() => {
-                status.textContent = '✓ Настройки успешно обновлены!';
-                status.className = 'text-xs text-emerald-400 font-semibold';
-                hint.textContent = 'Отлично! Точно так же нажмите на стрелочки в вашей программе VPN.';
-                hint.className = 'text-center text-sm text-emerald-400 mt-3 font-semibold';
-            }, 600);
-        }
-    </script>
 </body>
 </html>
